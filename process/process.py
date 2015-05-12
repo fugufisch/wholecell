@@ -25,6 +25,13 @@ class Process:
         self._index = index
 
 
+        # Need to be implemented as lists in subclasses
+        self.substrates = []
+        self.enzymes = []
+        self.parameters = []
+
+
+
     @property
     def id(self):
         return self._id
@@ -49,7 +56,7 @@ class Process:
     def index(self, value):
         self._index = value
 
-    def storeObjectRefs(self, simulation):
+    def store_object_refs(self, simulation):
         """
         Communicate with simulation
 
@@ -58,10 +65,17 @@ class Process:
         """
         pass
 
-    def copyFromState(self, stimulus):
+    def copy_from_state(self, stimulus):
         """
 
         :param stimulus:
         :return:
         """
         pass
+
+    def copy_to_state(self):
+        """
+
+        :return:
+        """
+        self.state
