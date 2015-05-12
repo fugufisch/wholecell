@@ -1,4 +1,5 @@
 __author__ = 'max'
+__author__ = 'Sebastian'
 
 class State(object):
     """
@@ -7,13 +8,29 @@ class State(object):
 
     def __init__(self, id, name):
         """
-        Initialize object.
-        :param id: str
-        :param name: str
-        :return: None
+
+        @param id: state id
+        @param name: state name
+
         """
-        self.id = id
-        self.name = name
+        self.__id = id
+        self.__name = name
+
+    @property
+    def id(self):
+        return self.__id
+
+    @id.setter
+    def id(self, id):
+        self.__id = id
+
+    @property
+    def name(self):
+        return self.__name
+
+    @name.setter
+    def name(self, name):
+        self.__name = name
 
     @property
     def parameters(self):
@@ -31,12 +48,13 @@ class State(object):
     def options(self, value):
         self.options = value
 
+    def storeObjectReferences(self, simulation):
+        pass
+
     def initializeConstants(self, input, simulation):
         """
-        Initialize the values of parameters.
-
-        :param input: Initializer
-        :param simulation:
-        :return: None
+        @param input:
+        @param simulation:
+        @return:
         """
         self.parameters = input.get_parameters(self.id)
