@@ -48,6 +48,8 @@ class State(object):
     def options(self, value):
         self.options = value
 
+    # do not change this is a abstract function to remember that this function has to be implemented in all classes
+    # which inherit from State
     def storeObjectReferences(self, simulation):
         pass
 
@@ -57,5 +59,5 @@ class State(object):
         @param simulation:
         @return:
         """
-        self.parameters = input.get_parameters(self.id)
+        self.parameters = knowledgebase.get_parameters(self.id)
         self.counts = {}  # contains the molecule numbers

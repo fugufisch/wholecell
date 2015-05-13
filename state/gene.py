@@ -1,8 +1,95 @@
 __author__ = 'max'
 
 from state import State
+import sys
+from data.knowledgebase import Knowledgebase
 
-class Gene(State):
+class SingleGene(State, object):
+    """
+    Storing the information related to each single gene of the database
+    """
+    def __init__(self, gene_by_row):
+        super(SingleGene, self).__init__(gene_by_row["WholeCellModelID"], gene_by_row["Name"])
+        self.__type = None
+        self.__count = None  # ??
+        self.__coordinate = None
+        self.__length = None
+        self.__sequence = None
+        self._set_information(gene_by_row)
+
+    @property
+    def type(self):
+        return self.__type
+
+    @type.setter
+    def type(self, type):
+        self.__type = type
+
+    @property
+    def count(self):
+        return self.__count
+
+    @type.setter
+    def count(self, count):
+        self.__count = count
+
+    @property
+    def coordinate(self):
+        return self.__coordinate
+
+    @coordinate.setter
+    def coordinate(self, coordinate):
+        self.__coordinate = coordinate
+
+    @property
+    def length(self):
+        return self.__length
+
+    @length.setter
+    def length(self, length):
+        self.__length = length
+
+    @property
+    def sequence(self):
+        return self.__sequence
+
+    @sequence.setter
+    def sequence(self, sequence):
+        self.__sequence = sequence
+
+
+    def _set_information(self, gene_by_row):
+        if gene_by_row.Type:
+            self.type = gene_by_row.Type
+        if gene_by_row.Coordinate:
+            self.coordinate = gene_by_row.Coordinate
+        if gene_by_row.Length:
+            self.length = gene_by_row.Length
+        if gene_by_row.Sequence:
+            self.sequence = gene_by_row.Sequence
+
+class Gene(list, object):
+    """
+    A list containing all genes of the system
+
+    TODO: change into dict
+    """
     def __init__(self, init_dict):
-        super(Gene, self).__init__(init_dict["ID"], init_dict["name"])
-        
+        #super(Gene, self).__init__(init_dict["ID"], init_dict["name"])
+        super(Gene, self).__init__()
+        self.kb = Knowledgebase(data_dir='../data', select_states=["genes"])  # get only the gene information
+        for i in range(len(self.kb.states.genes["WholeCellModelID"])):  # iter over all genes
+            print self.kb.states.genes.transpose()[i]  # get the line/gene information
+            self.add_gene(self.kb.states.genes.transpose()[i]) # get the complete ith row
+
+    def add_gene(self, gene_by_row):
+        self.append(SingleGene(gene_by_row))  # append each Single gene to a list of genes
+
+    def remove_gene(self):
+        pass
+
+    def get_gene(self):
+        pass
+
+if __name__ == "__main__":
+    Gene({})

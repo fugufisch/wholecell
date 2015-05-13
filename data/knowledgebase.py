@@ -18,11 +18,13 @@ class Knowledgebase(object):
 
     processes_names = []
 
-    def __init__(self, data_dir='data'):
+    def __init__(self, data_dir='data', select_states=states_names, select_processes=processes_names):
         self._data_dir = data_dir
         # initialize scaffold for states and processes tree
         self.states = dummy()
         self.processes = dummy()
+
+        self.states_names = select_states
 
         # get the data tables for states and processes
         for tp in ['states', 'processes']:
