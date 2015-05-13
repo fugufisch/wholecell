@@ -26,9 +26,7 @@ class Process(object):
 
 
         # Need to be implemented as lists in subclasses
-        self.substrates = []
-        self.enzymes = []
-        self.parameters = []
+        self.__substrate_whole_cell_ids = []
 
     @property
     def id(self):
@@ -54,8 +52,21 @@ class Process(object):
         :return:
         """
         self.metabolite = simulation.get_state("Metabolite")
-        self.gene = simulation.get_state("Rna")
+        self.rna = simulation.get_state("Rna")
         self.protein = simulation.get_state("Protein")
+        self.states = [self.metabolite, self.rna, self.protein]
+
+    def initializeConstants(self, knowledgebase, simulation, opts):
+        """
+        Read the data from the knowledgebase.
+
+        :param knowledgebase:
+        :param simulation:
+        :param opts:
+        :return: None
+        """
+        self.__wholeCellModelIds
+
 
     def copy_from_state(self):
         """
@@ -63,17 +74,32 @@ class Process(object):
         :param stimulus:
         :return:
         """
-        self.__substrates = self.copy_substrates_from_state()
+        self.__substrates = self._copy_substrates_from_state()
 
-    def copy_substrate_from_state(self):
-        pass
+    def _copy_substrate_from_state(self):
+        for id in self.__substrate_whole_cell_ids:
+            if id in self.metabolite.whole_cell_ids:
+                self.__substrates[id] = self.metabolite.counts[id]
+            if id in self.rna.whole_cell_ids:
+                self.__substrates[id] = self.rna.counts[id]
+            if id in self.protein.whole_cell_ids:
+                self.__substrates[id] = self.protein.counts[id]
 
     def copy_to_state(self):
         """
 
         :return:
         """
-        self.state
+        self._copy_substrates_to_state()
+
+    def _copy_substrates_to_state(self):
+        for id in self.__substrate_whole_cell_ids:
+            if id in self.metabolite.whole_cell_ids:
+                self.metabolite.counts[id] = self.__substrates[id]
+            if id in self.rna.whole_cell_ids:
+                self.rna.counts[id] = self.__substrates[id]
+            if id in self.protein.whole_cell_ids:
+                self.protein.counts[id] = self.__substrates[id]
 
     def evolve_state(self):
         """
