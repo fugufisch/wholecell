@@ -68,28 +68,52 @@ class SingleGene(State, object):
         if gene_by_row.Sequence:
             self.sequence = gene_by_row.Sequence
 
-class Gene(list, object):
+class Gene(dict, object):
     """
-    A list containing all genes of the system
-
-    TODO: change into dict
+    A dictionary containing all genes of the system
     """
     def __init__(self, init_dict):
         #super(Gene, self).__init__(init_dict["ID"], init_dict["name"])
         super(Gene, self).__init__()
+
         self.kb = Knowledgebase(data_dir='../data', select_states=["genes"])  # get only the gene information
         for i in range(len(self.kb.states.genes["WholeCellModelID"])):  # iter over all genes
             print self.kb.states.genes.transpose()[i]  # get the line/gene information
             self.add_gene(self.kb.states.genes.transpose()[i]) # get the complete ith row
 
     def add_gene(self, gene_by_row):
-        self.append(SingleGene(gene_by_row))  # append each Single gene to a list of genes
+        """
+        This function adds a gene, as long as it does not already exist, to the gene dictionary
+        @param gene_by_row: panda object containing the row information of a gene
+        @return:None
+        """
+        if gene_by_row.WholeCellModelID not in self:
+            self[gene_by_row.WholeCellModelID] = SingleGene(gene_by_row)  # append each Single gene to a list of genes
+        else:
+            print "{0] already known".format(gene_by_row.WholeCellModelID)
 
-    def remove_gene(self):
-        pass
+    def remove_gene(self, WholeCellModelID):
+        """
+        Remove a gene from the dictonary
+        @param WholeCellModelID: str identifier
+        @return:
+        """
+        if WholeCellModelID in self:
+            del self[WholeCellModelID]
 
-    def get_gene(self):
-        pass
+
+    def get_gene(self, WholeCellModelID):
+        """
+        Get a gene from the dictionary
+        @param WholeCellModelID:
+        @return: SingleGene object if key in dictionary
+        @return: None if key not in dictionary
+        """
+        if WholeCellModelID in self:
+            return self[WholeCellModelID]
+        else:
+            return None
+
 
 if __name__ == "__main__":
     Gene({})
