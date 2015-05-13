@@ -62,14 +62,14 @@ class Simulation(object):
         instantiate state objects according to the specification
         :return:
         """
-        state_objects = []
+        state_objects = {}
         for s in self.states:
             package_name = "state.{0}".format(s["type"].lower())
             state_package = __import__(package_name)
             state_module = getattr(state_package, s["type"].lower())
             state_type = getattr(state_module, s["type"])
 
-            state_objects.append(state_type(s))
+            state_objects[s["ID"]] = state_type(s)
 
         self.states = state_objects
 
@@ -78,13 +78,12 @@ class Simulation(object):
         instantiate state objects according to the specification
         :return:
         """
-        process_objects = []
+        process_objects = {}
         for s in self.processes:
             package_name = "process.{0}".format(s["type"].lower())
             process_package = __import__(package_name)
             process_module = getattr(process_package, s["type"].lower())
             process_type = getattr(process_module, s["type"])
-
-            process_objects.append(process_type(s))
+            process_objects[s["ID"]] = process_type(s)
 
         self.processes = process_objects
