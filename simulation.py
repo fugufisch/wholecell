@@ -18,6 +18,9 @@ class Simulation(object):
         self.states = states
         self.steps = steps
 
+        for p in self.states:
+            self.construct_states()
+
 
     def evolve_state(self):
         """
@@ -50,5 +53,3 @@ class Simulation(object):
             req, usages = self.evolve_state
             metabolite.requirements = req
             metabolite.usages = usages
-
-
