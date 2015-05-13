@@ -17,13 +17,32 @@ class Simulation(object):
         """
         super(Simulation, self).__init__()
 
-        self.processes = processes
-        self.states = states
+        self.__processes = processes
+        self.__states = states
         self.steps = steps
 
         self._construct_states()
         self._construct_processes()
 
+    def get_state(self, id):
+        """
+        Get the state object 'id'.
+
+        :param id: wholeCellId
+        :return: state object
+        """
+        assert isinstance(id, str)
+        return self.__states[id]
+
+    def get_process(self, id):
+        """
+        Get the state object 'id'.
+
+        :param id: wholeCellId
+        :return: process object
+        """
+        assert isinstance(id, str)
+        return self.__processes[id]
 
     def evolve_state(self):
         """
@@ -36,13 +55,12 @@ class Simulation(object):
         requirements = [] # what processes need
         usages = [] # what was used in this step
 
-        for p in self.processes:
+        for p in self.__processes:
             p.copy_from_state()
             p.copy_to_state()
 
 
         return (requirements, usages)
-
 
     def run(self, loggers):
         """
@@ -51,7 +69,7 @@ class Simulation(object):
         :param loggers:
         :return:
         """
-        metabolite = self.states["metabolite"]
+        metabolite = self.__states["metabolite"]
         for step in xrange(self.steps):
             req, usages = self.evolve_state
             metabolite.requirements = req
@@ -63,15 +81,15 @@ class Simulation(object):
         :return:
         """
         state_objects = {}
-        for s in self.states:
-            package_name = "state.{0}".format(s["type"].lower())
+        for s in self.__states:
+            package_name = "state.{0}".format(s["ID"].lower())
             state_package = __import__(package_name)
-            state_module = getattr(state_package, s["type"].lower())
-            state_type = getattr(state_module, s["type"])
+            state_module = getattr(state_package, s["ID"].lower())
+            state_name = getattr(state_module, s["ID"])
 
-            state_objects[s["ID"]] = state_type(s)
+            state_objects[s["ID"]] = state_name(s)
 
-        self.states = state_objects
+        self.__states = state_objects
 
     def _construct_processes(self):
         """
@@ -79,11 +97,12 @@ class Simulation(object):
         :return:
         """
         process_objects = {}
-        for s in self.processes:
-            package_name = "process.{0}".format(s["type"].lower())
+        for s in self.__processes:
+            package_name = "process.{0}".format(s["ID"].lower())
             process_package = __import__(package_name)
-            process_module = getattr(process_package, s["type"].lower())
-            process_type = getattr(process_module, s["type"])
-            process_objects[s["ID"]] = process_type(s)
+            process_module = getattr(process_package, s["ID"].lower())
+            process_name = getattr(process_module, s["ID"])
 
-        self.processes = process_objects
+            process_objects[s["ID"]] = process_name(s)
+
+        self.__processes = process_objects

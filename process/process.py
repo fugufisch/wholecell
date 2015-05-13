@@ -1,5 +1,5 @@
 
-class Process:
+class Process(object):
     """
     This Class provides the basic functionality for biological processes. 
     It defines the simulation-process-interface:
@@ -10,27 +10,25 @@ class Process:
     - Resource requirements
 
 
+
     Provides methods to:
 
     - copy/write state from/to simulation
 
     """
 
-    def __init__(self, id, name, index):
+    def __init__(self, id, name):
         """
-        Inits main attributes. 
+        Inits main attributes. Subclasses will initialize all parameters and constants from the database.
         """
-        self._id = id
-        self._name = name
-        self._index = index
+        self.id = id
+        self.name = name
 
 
         # Need to be implemented as lists in subclasses
         self.substrates = []
         self.enzymes = []
         self.parameters = []
-
-
 
     @property
     def id(self):
@@ -48,22 +46,16 @@ class Process:
     def name(self, value):
         self._name = value
 
-    @property
-    def index(self):
-        return self._index
-
-    @index.setter
-    def index(self, value):
-        self._index = value
-
     def store_object_refs(self, simulation):
         """
-        Communicate with simulation
+        Store states inside process.
 
         :param simulation:
         :return:
         """
-        pass
+        self.metabolite = simulation.get_state("Metabolite")
+        self.gene = simulation.get_state("Rna")
+        self.protein = simulation.get_state("Protein")
 
     def copy_from_state(self, stimulus):
         """
@@ -79,3 +71,11 @@ class Process:
         :return:
         """
         self.state
+
+    def evolve_state(self):
+        """
+        Abstract, needs to be implemented in subclass.
+        :return:
+        """
+        pass
+
