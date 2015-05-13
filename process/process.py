@@ -57,12 +57,15 @@ class Process(object):
         self.gene = simulation.get_state("Rna")
         self.protein = simulation.get_state("Protein")
 
-    def copy_from_state(self, stimulus):
+    def copy_from_state(self):
         """
 
         :param stimulus:
         :return:
         """
+        self.__substrates = self.copy_substrates_from_state()
+
+    def copy_substrate_from_state(self):
         pass
 
     def copy_to_state(self):
