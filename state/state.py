@@ -51,10 +51,11 @@ class State(object):
     def storeObjectReferences(self, simulation):
         pass
 
-    def initializeConstants(self, input, simulation):
+    def initializeConstants(self, knowledgebase, simulation):
         """
-        @param input:
+        @param knowledgebase:
         @param simulation:
         @return:
         """
         self.parameters = input.get_parameters(self.id)
+        self.counts = {}  # contains the molecule numbers
