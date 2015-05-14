@@ -68,17 +68,16 @@ class SingleGene(State, object):
         if gene_by_row.Sequence:
             self.sequence = gene_by_row.Sequence
 
-class Gene(dict, object):
+class Gene(State, dict, object):
     """
     A dictionary containing all genes of the system
     """
     def __init__(self, init_dict):
-        #super(Gene, self).__init__(init_dict["ID"], init_dict["name"])
-        super(Gene, self).__init__()
+        super(Gene, self).__init__(init_dict["ID"], init_dict["name"])
+        #super(Gene, self).__init__()
 
         self.kb = Knowledgebase(data_dir='../data', select_states=["genes"])  # get only the gene information
         for i in range(len(self.kb.states.genes["WholeCellModelID"])):  # iter over all genes
-            print self.kb.states.genes.transpose()[i]  # get the line/gene information
             self.add_gene(self.kb.states.genes.transpose()[i]) # get the complete ith row
 
     def add_gene(self, gene_by_row):
@@ -90,7 +89,7 @@ class Gene(dict, object):
         if gene_by_row.WholeCellModelID not in self:
             self[gene_by_row.WholeCellModelID] = SingleGene(gene_by_row)  # append each Single gene to a list of genes
         else:
-            print "{0] already known".format(gene_by_row.WholeCellModelID)
+            print "{0} already known".format(gene_by_row.WholeCellModelID)
 
     def remove_gene(self, WholeCellModelID):
         """
@@ -116,4 +115,4 @@ class Gene(dict, object):
 
 
 if __name__ == "__main__":
-    Gene({})
+    Gene({"ID": 1, "name":"gene"})
