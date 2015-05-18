@@ -1,16 +1,21 @@
 __author__ = 'max'
 import csv
 import simulation
-
+from data.knowledgebase import Knowledgebase
 
 class Initializer(object):
     """
     Reads initial values from a file and provides an interface to the simulation class for initialization
     """
     def __init__(self):
+        self._init_knowledgebase()
         self._init_states()
         self._init_processes()
-        s = simulation.Simulation(self.processes, self.states, 100)
+        s = simulation.Simulation(self.processes, self.states, self.knowledgebase, 100)
+
+
+    def _init_knowledgebase(self):
+        self.knowledgebase = Knowledgebase('data/')
 
     def _init_states(self):
         self.states = csv.DictReader(open("data/states.csv", "r"))

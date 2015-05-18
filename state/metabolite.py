@@ -1,17 +1,18 @@
-import math
-from data.knowledgebase import Knowledgebase
-from state import State
-
 __author__ = 'max'
 __author__ = 'Sebastian'
 
-class SingleMetabolite(State, object):
+import math
+from state import State
+from data.knowledgebase import Knowledgebase
+
+class MetaboliteInformation(object):
     """"""
 
     def __init__(self, metabolite_by_row):
         """Constructor for SingleMetabolite"""
-        super(SingleMetabolite, self).__init__(metabolite_by_row["WholeCellModelID"], metabolite_by_row["Name"])
-
+        #super(SingleMetabolite, self).__init__(metabolite_by_row["WholeCellModelID"], metabolite_by_row["Name"])
+        self.__name  = None
+        self.__WholeCellModelID = None
         self.__charge = float('nan')
         self.__molecularWeightCalc = None #float('nan')
         self.__exchangeLowerBound = float('nan')
@@ -21,6 +22,22 @@ class SingleMetabolite(State, object):
         self.__category = None
 
         self._set_information(metabolite_by_row)
+
+    @property
+    def WholeCellModelID(self):
+        return self.__WholeCellModelID
+
+    @WholeCellModelID.setter
+    def WholeCellModelID(self, WholeCellModelID):
+        self.__WholeCellModelID = WholeCellModelID
+
+    @property
+    def name(self):
+        return self.__name
+
+    @name.setter
+    def name(self, name):
+        self.__name = name
 
     @property
     def charge(self):
@@ -79,6 +96,8 @@ class SingleMetabolite(State, object):
         self.__category = category
 
     def _set_information(self, metabolite_by_row):
+        self.WholeCellModelID = metabolite_by_row.whole_cell_model_id
+        self.name = metabolite_by_row.Name
         if not math.isnan(metabolite_by_row.Charge):
             self.charge = metabolite_by_row.Charge
         if not math.isnan(metabolite_by_row.MolecularWeightCalc):
@@ -98,25 +117,57 @@ class Metabolite(State, dict, object):
     """
     Metabolites
     """
-    def __init__(self, init_dict):
+    def __init__(self, init_dict, knowledgebase):
         super(Metabolite, self).__init__(init_dict["ID"], init_dict["name"])
+        self.__knowledgebase = knowledgebase
 
-        self.kb = Knowledgebase(data_dir='../data', select_states=["metabolites"])  # get only the gene information
-        for i in range(len(self.kb.states.metabolites["WholeCellModelID"])):  # iter over all genes
-            print self.kb.states.metabolites.transpose()[i]  # get the line/gene information
-            self.add_metabolite(self.kb.states.metabolites.transpose()[i])  # get the complete ith row
+    def remove_metabolite(self, WholeCellModelID):
+        """
+        Remove a metabolite from the dictionary
+        @param WholeCellModelID: str identifier
+        @return:
+        """
+        if WholeCellModelID in self:
+            del self[WholeCellModelID]
 
-    def add_metabolite(self, metabolite_by_row):
+    def initialize_all_metabolite(self):
         """
         This function adds a metabolite to the metabolite dictionary
         @param metabolite_by_row: panda object containing the row information of a gene
         @return: None
         """
-        if metabolite_by_row.WholeCellModelID not in self and isinstance(metabolite_by_row.WholeCellModelID, str):
-            self[metabolite_by_row.WholeCellModelID] = SingleMetabolite(metabolite_by_row)  # append each Single gene to a list of genes
-        elif isinstance(metabolite_by_row.WholeCellModelID, str):
-            print "WholeCellModelID {0} already known".format(metabolite_by_row.WholeCellModelID)
+        for i in range(len(self.__knowledgebase.metabolites)):
+            metabolite_by_row = self.__knowledgebase.metabolites.iloc[i]
+            if metabolite_by_row.whole_cell_model_id not in self and isinstance(metabolite_by_row.whole_cell_model_id, str):
+                self[metabolite_by_row.whole_cell_model_id] = MetaboliteInformation(metabolite_by_row)  # append each Single gene to a list of genes
+            elif isinstance(metabolite_by_row.whole_cell_model_id, str):
+                print "WholeCellModelID {0} already known".format(metabolite_by_row.whole_cell_model_id)
+            else:
+                print "Something strange WholeCellModelID: {0}".format(metabolite_by_row.whole_cell_model_id)
+
+    def initialize_metabolite(self, WholeCellModelID):
+        """
+        initialisation of specific metabolites
+        @param WholeCellModelID:
+        @return:
+        """
+
+        metabolite_by_row = self.__knowledgebase.metabolites[self.__knowledgebase.metabolites.whole_cell_model_id == WholeCellModelID]
+        if len(metabolite_by_row) == 1:
+            metabolite_by_row = metabolite_by_row.iloc[0]
+            if metabolite_by_row.whole_cell_model_id not in self:
+                self[metabolite_by_row.whole_cell_model_id] = MetaboliteInformation(metabolite_by_row)  # append each Single gene to a list of genes
+                pass
+            else:
+                print "{0} already known".format(WholeCellModelID)
+        elif len(gene_by_row) > 1:
+            print "{0} is {1} time in knowledgebase".format(WholeCellModelID, len(metabolite_by_row))
         else:
-            print "Something strange WholeCellModelID: {0}".format(metabolite_by_row.WholeCellModelID)
+            print "{0} not in knowledgebase".format(WholeCellModelID)
+
 if __name__ == "__main__":
-    Metabolite(({"ID": 2, "name":"metabolite"}))
+    knowledgebase = Knowledgebase('../data')
+    met = Metabolite({"ID": 2, "name":"metabolite"}, knowledgebase.states)
+    #met.initialize_all_metabolite()
+    met.initialize_metabolite("ADP")
+    pass

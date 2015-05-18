@@ -88,7 +88,7 @@ class Simulation(object):
             state_module = getattr(state_package, s["ID"].lower())
             state_name = getattr(state_module, s["ID"])
 
-            state_objects[s["ID"]] = state_name(s, self.__knowledgebase)
+            state_objects[s["ID"]] = state_name(s, self.__knowledgebase.states)
 
         self.__states = state_objects
 
