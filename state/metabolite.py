@@ -98,13 +98,13 @@ class Metabolite(State, dict, object):
     """
     Metabolites
     """
-    def __init__(self, init_dict):
-        super(Metabolite, self).__init__(init_dict["ID"], init_dict["name"])
+    def __init__(self, init_dict, knowledgebase):
+        super(Metabolite, self).__init__(init_dict["ID"], init_dict["name"], knowledgebase)
 
-        self.kb = Knowledgebase(data_dir='../data', select_states=["metabolites"])  # get only the gene information
-        for i in range(len(self.kb.states.metabolites["WholeCellModelID"])):  # iter over all genes
-            print self.kb.states.metabolites.transpose()[i]  # get the line/gene information
-            self.add_metabolite(self.kb.states.metabolites.transpose()[i])  # get the complete ith row
+        #self.kb = Knowledgebase(data_dir='../data', select_states=["metabolites"])  # get only the gene information
+        #for i in range(len(self.kb.states.metabolites["WholeCellModelID"])):  # iter over all genes
+        #    print self.kb.states.metabolites.transpose()[i]  # get the line/gene information
+        #    self.add_metabolite(self.kb.states.metabolites.transpose()[i])  # get the complete ith row
 
     def add_metabolite(self, metabolite_by_row):
         """

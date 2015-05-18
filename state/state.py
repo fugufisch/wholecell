@@ -6,7 +6,7 @@ class State(object):
     Generic cell state objects. These can be used and produced by processes during simulation.
     """
 
-    def __init__(self, id, name):
+    def __init__(self, id, name, knowledgebase):
         """
 
         @param id: state id
@@ -15,6 +15,8 @@ class State(object):
         """
         self.__id = id
         self.__name = name
+
+        self._initializeConstants(knowledgebase)
 
     @property
     def id(self):
@@ -53,11 +55,11 @@ class State(object):
     def storeObjectReferences(self, simulation):
         pass
 
-    def initializeConstants(self, knowledgebase, simulation):
+    def _initializeConstants(self, knowledgebase):
         """
         @param knowledgebase:
         @param simulation:
         @return:
         """
-        self.parameters = knowledgebase.get_parameters(self.id)
-        self.counts = {}  # contains the molecule numbers
+        ids = getattr(knowledgebase.states, self.__id.lower()+"s").WholeCellModelID
+        self._counts = dict(zip(ids, [1]*len(ids)))

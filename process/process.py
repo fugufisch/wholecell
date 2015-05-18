@@ -28,6 +28,14 @@ class Process(object):
         # Need to be implemented as lists in subclasses
         self.__substrate_whole_cell_ids = []
 
+        self.__substrates = []
+
+        # to be filled with the actual states
+        self.metabolite = []
+        self.rna = []
+        self.protein = []
+        self.states = []
+
     @property
     def id(self):
         return self._id
@@ -56,7 +64,7 @@ class Process(object):
         self.protein = simulation.get_state("Protein")
         self.states = [self.metabolite, self.rna, self.protein]
 
-    def initializeConstants(self, knowledgebase, simulation, opts):
+    def initialize_constants(self, knowledgebase, simulation, opts):
         """
         Read the data from the knowledgebase.
 
@@ -76,7 +84,7 @@ class Process(object):
         """
         self.__substrates = self._copy_substrates_from_state()
 
-    def _copy_substrate_from_state(self):
+    def _copy_substrates_from_state(self):
         for id in self.__substrate_whole_cell_ids:
             if id in self.metabolite.whole_cell_ids:
                 self.__substrates[id] = self.metabolite.counts[id]

@@ -4,12 +4,12 @@ from state import State
 import sys
 from data.knowledgebase import Knowledgebase
 
-class SingleGene(State, object):
+class SingleGene(object):
     """
     Storing the information related to each single gene of the database
     """
     def __init__(self, gene_by_row):
-        super(SingleGene, self).__init__(gene_by_row["WholeCellModelID"], gene_by_row["Name"])
+        #super(SingleGene, self).__init__(gene_by_row["WholeCellModelID"], gene_by_row["Name"], knowledgebase)
         self.__type = None
         self.__count = None  # ??
         self.__coordinate = None
@@ -72,11 +72,11 @@ class Gene(State, dict, object):
     """
     A dictionary containing all genes of the system
     """
-    def __init__(self, init_dict):
-        super(Gene, self).__init__(init_dict["ID"], init_dict["name"])
+    def __init__(self, init_dict, knowledgebase):
+        super(Gene, self).__init__(init_dict["ID"], init_dict["name"], knowledgebase)
         #super(Gene, self).__init__()
 
-        self.kb = Knowledgebase(data_dir='../data', select_states=["genes"])  # get only the gene information
+        self.kb = Knowledgebase(data_dir='data', select_states=["genes"])  # get only the gene information
         for i in range(len(self.kb.states.genes["WholeCellModelID"])):  # iter over all genes
             self.add_gene(self.kb.states.genes.transpose()[i]) # get the complete ith row
 
