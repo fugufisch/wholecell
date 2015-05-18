@@ -113,7 +113,7 @@ class MatureRnaInformation(object):
         if rna_by_row.Direction:
             self.direction = rna_by_row.Direction
         if rna_by_row.Genes:
-            print "rna_by_row.Genes: ", rna_by_row.Genes
+            #print "rna_by_row.Genes: ", rna_by_row.Genes
             self.genes = re.findall("[MG_0-9]+", rna_by_row.Genes)
         if rna_by_row.Length:
             self.length = rna_by_row.Length
