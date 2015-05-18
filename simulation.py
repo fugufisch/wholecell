@@ -6,7 +6,7 @@ class Simulation(object):
     - Runs simulations
     - Stores and loads simulation data
     """
-    def __init__(self, processes, states, steps):
+    def __init__(self, processes, states, knowledgebase, steps):
         """
         Sets up simulation and links processes and states.
 
@@ -19,6 +19,7 @@ class Simulation(object):
 
         self.__processes = processes
         self.__states = states
+        self.__knowledgebase = knowledgebase
         self.steps = steps
 
         self._construct_states()
@@ -87,7 +88,7 @@ class Simulation(object):
             state_module = getattr(state_package, s["ID"].lower())
             state_name = getattr(state_module, s["ID"])
 
-            state_objects[s["ID"]] = state_name(s)
+            state_objects[s["ID"]] = state_name(s, self.__knowledgebase)
 
         self.__states = state_objects
 
