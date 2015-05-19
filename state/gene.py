@@ -9,7 +9,6 @@ class GeneInformation(object):
     Storing the information related to each single gene of the database
     """
     def __init__(self, gene_by_row):
-        #super(SingleGene, self).__init__(gene_by_row["WholeCellModelID"], gene_by_row["Name"])
         self.__whole_cell_model_id = None
         self.__name = None
         self.__type = None
@@ -135,18 +134,16 @@ class Gene(State, dict, object):
     """
     A dictionary containing all genes of the system
     """
-    def __init__(self, init_dict, knowledgebase):
+    def __init__(self, init_dict):
         super(Gene, self).__init__(init_dict["ID"], init_dict["name"])
-        #super(Gene, self).__init__()
-        self.__knowledgebase = knowledgebase # do we want this here? or should it be an argument of initialize_all_genes
 
 
-    def initialize_genes(self):
+    def initialize_genes(self, knowledgebase):
         """
         This function adds a gene, as long as it does not already exist, to the gene dictionary
         """
-        for i in range(len(self.__knowledgebase.genes)):
-            gene_by_row = self.__knowledgebase.genes.iloc[i] # get the complete ith row
+        for i in range(len(knowledgebase.genes.WholeCellModelID.dropna())):
+            gene_by_row = knowledgebase.genes.iloc[i] # get the complete ith row
 
             if gene_by_row.WholeCellModelID not in self:
                 self[gene_by_row.WholeCellModelID] = GeneInformation(gene_by_row)  # append each Single gene to a list of genes
@@ -169,5 +166,6 @@ class Gene(State, dict, object):
 
 if __name__ == "__main__":
     knowledgebase = Knowledgebase('../data')
-    g = Gene({"ID": 1, "name":"gene"}, knowledgebase.states)
-    g.initialize_genes()
+    g = Gene({"ID": 1, "name":"gene"})
+    g.initialize_genes(knowledgebase.states)
+    pass

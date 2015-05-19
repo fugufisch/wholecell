@@ -9,7 +9,7 @@ from state import State
 class MatureRnaInformation(object):
     """Information about the mature RNA"""
  
-    def __init__(self, rna_by_row):
+    def __init__(self, rna_by_row, knowledge_genes):
         """Constructor for MatureRna"""
         self.__coordinate = None
         self.__direction = None
@@ -21,7 +21,12 @@ class MatureRnaInformation(object):
         self.__synthesis_rate = None
         self.__whole_cell_model_id = None
         self.__type = None
+        self.__expected_gene_expression = {}
+        self.__expected_gene_half_life = {}
+
+
         self._set_information(rna_by_row)
+        self._initializeConstants(knowledge_genes)
  # 'Promoter10Coordinate',
  # 'Promoter10Length',
  # 'Promoter35Coordinate',
@@ -32,7 +37,7 @@ class MatureRnaInformation(object):
 
     @coordinate.setter
     def coordinate(self, coordinate):
-        self.__coordinate
+        self.__coordinate = coordinate
 
     @property
     def direction(self):
@@ -106,13 +111,29 @@ class MatureRnaInformation(object):
     def type(self, type):
         self.__type = type
 
+    @property
+    def expected_gene_expression(self):
+        return self.__expected_gene_expression
+
+    @expected_gene_expression.setter
+    def expected_gene_expression(self, expected_gene_expression):
+        self.__expected_gene_expression = expected_gene_expression
+
+    @property
+    def expected_gene_half_life(self):
+        return self.__expected_gene_half_life
+
+    @expected_gene_half_life.setter
+    def expected_gene_half_life(self, expected_gene_half_life):
+        self.__expected_gene_half_life = expected_gene_half_life
+
     def _set_information(self, rna_by_row):
 
         if rna_by_row.Coordinate:
             self.coordinate = rna_by_row.Coordinate
         if rna_by_row.Direction:
             self.direction = rna_by_row.Direction
-        if rna_by_row.Genes:
+        if isinstance(rna_by_row.Genes,str):
             #print "rna_by_row.Genes: ", rna_by_row.Genes
             self.genes = re.findall("[MG_0-9]+", rna_by_row.Genes)
         if rna_by_row.Length:
@@ -130,10 +151,25 @@ class MatureRnaInformation(object):
         if rna_by_row.WholeCellModelID:
             self.whole_cell_model_id = rna_by_row.WholeCellModelID
 
+    def _initializeConstants(self, knowledge_genes):
+        if len(self.genes) > 1:
+            for gene_id in self.genes:
+                gene_by_row = knowledge_genes[knowledge_genes.WholeCellModelID == gene_id]
+                if not gene_by_row.empty:
+                    self.expected_gene_half_life[gene_id] = gene_by_row.iloc[0].HalfLifeMean * 60  # experimental gen half life
+                    self.expected_gene_expression[gene_id] = gene_by_row.iloc[0].Expression / sum(knowledge_genes.Expression.dropna())  # experimental gene expression
+
+    def get_rna_decay_rate(self):
+        """
+        decay rate of RNAs (mol/s)
+        @return:
+        """
+        return math.log(2) / self.half_life
 
 class Rna(State, dict, object):
     def __init__(self, init_dict):
         super(Rna, self).__init__(init_dict["ID"], init_dict["name"])
+
 
         #expectedGeneExpression      %experimental gene expression
         #expectedGeneHalfLives       %experimental gene half lives
@@ -141,28 +177,44 @@ class Rna(State, dict, object):
         #geneHalfLives %half lifes of each gene (s)
         #geneExpression %mol fractions of genes
 
+    def initialize_all_rna(self, knowledgebase):
+        """ initializing all rnas
 
-    def initializeConstants(self, knowledgebase, simulation):
-        self.expected_gene_half_life = knowledgebase.genes.HalfLifeMean * 60  # experimental gen half life
-        self.expected_gene_expression = knowledgebase.genes.Expression.dropna() / sum(knowledgebase.genes.Expression.dropna())  # experimental gene expression
-        pass
-
-    def initialize_rna(self, knowledgebase):
+        @param knowledgebase: pandas obj
+        @return:
         """
-        This function adds a gene, as long as it does not already exist, to the gene dictionary
-        """
-        for i in range(len(knowledgebase.transcriptional_units)):
+        for i in range(len(knowledgebase.transcriptional_units.WholeCellModelID.dropna())):
             rna_by_row = knowledgebase.transcriptional_units.iloc[i] # get the complete ith row
 
             if rna_by_row.WholeCellModelID not in self:
-                self[rna_by_row.WholeCellModelID] = MatureRnaInformation(rna_by_row)  # append each Single gene to a list of genes
+                self[rna_by_row.WholeCellModelID] = MatureRnaInformation(rna_by_row, knowledgebase.genes)  # append each Single gene to a list of genes
             else:
                 print "{0} already known".format(rna_by_row.WholeCellModelID)
 
 
+    def initialize_rna(self, knowledgebase, whole_cell_model_id):
+        """
+        This function adds a rna, as long as it does not already exist, to the rna dictionary
+        """
+        rna_by_row = knowledgebase.transcriptional_units[knowledgebase.transcriptional_units.whole_cell_model_id == whole_cell_model_id]
+        if len(rna_by_row) == 1:
+            rna_by_row = rna_by_row.iloc[0]
+            if rna_by_row.whole_cell_model_id not in self:
+                self[rna_by_row.whole_cell_model_id] = MatureRnaInformation(rna_by_row, knowledgebase.genes)  # append each Single gene to a list of genes
+                pass
+            else:
+                print "{0} already known".format(whole_cell_model_id)
+        elif len(gene_by_row) > 1:
+            print "{0} is {1} time in knowledgebase".format(whole_cell_model_id, len(rna_by_row))
+        else:
+            print "{0} not in knowledgebase".format(whole_cell_model_id)
+
+    def get_expected_gene_decay_rates(self):
+        return mat.log(2) / self.expected_gene_half_life
 
 if __name__ == "__main__":
     knowledgebase = Knowledgebase('../data')
     r = Rna({"ID": 1, "name":"gene"})
-    r.initializeConstants(knowledgebase.states,"simulation")
-    r.initialize_rna(knowledgebase.states)
+    #r.initializeConstants(knowledgebase.states,"simulation")
+    r.initialize_all_rna(knowledgebase.states)
+    pass

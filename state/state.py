@@ -1,3 +1,5 @@
+import math
+
 __author__ = 'max'
 __author__ = 'Sebastian'
 
@@ -62,3 +64,11 @@ class State(object):
 
         self.parameters = knowledgebase.get_parameters(self.id)
         self.counts = {}  # contains the molecule numbers
+
+    def get_decay_rates(self):
+        return math.log(2) / self.half_life
+
+    def initialize_count(self, time):
+        #                             number of IDs                count im comp       time points
+        #this.counts = zeros([numel(this.wholeCellModelIDs), this.compartment.count, numTimePoints])
+        self.counts = 0
